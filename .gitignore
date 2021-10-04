@@ -1,0 +1,4 @@
+exampleRepo
+target/
+.idea/
+*.log
