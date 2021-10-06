@@ -32,6 +32,19 @@ public class GitCommands
         catch(Exception e) {error(e);}
     }
 
+    public static void pull(String pathName, String remote, String branch)
+    {
+        String rm = (remote.equals("origin")?"origin":remote);
+        String br = (branch.equals("master")?"master":branch);
+
+        try(Git git = Git.open(new File(pathName)))
+        {
+            git.pull().setRemote(rm).setRemoteBranchName(br).call();
+            info("successfully pulled "+rm +"/"+br);
+        }
+        catch (Exception e){error(e);}
+    }
+
     // checkout -b
     public static void createBranch(String pathName, String newBranch)
     {
@@ -62,21 +75,13 @@ public class GitCommands
     }
 
     // TODO: need to unwrap
-    public static List<Map<String, Object>> getGitLogs(String pathName)
+    public static List<RevCommit> getGitLogs(String pathName)
     {
-        List<Map<String, Object>> ret = new ArrayList<>();
+        List<RevCommit> ret = new ArrayList<>();
         try(Git git = Git.open(new File(pathName)))
         {
             Iterable<RevCommit> gitLogs = git.log().call();
-            gitLogs.forEach(e ->
-            {
-                Map<String, Object> commitInfo = new HashMap<>();
-                commitInfo.put("fullMessage", e.getFullMessage());
-                commitInfo.put("tree", e.getTree());
-                commitInfo.put("commitTime", e.getCommitTime());
-                commitInfo.put("name", e.getName());
-                ret.add(commitInfo);
-            });
+            gitLogs.forEach(ret::add);
         }
         catch (Exception e) {error(e);}
         return ret;
